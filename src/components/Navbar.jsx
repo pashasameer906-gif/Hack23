@@ -18,6 +18,7 @@ const Navbar = () => {
     { name: 'Home', href: '#home' },
     { name: 'Features', href: '#features' },
     { name: 'USP', href: '#usp' },
+    { name: 'Calculator', href: '#battery-calculator' },
     { name: 'Demo', href: '#demo' },
     { name: 'Impact', href: '#impact' },
     { name: 'Team', href: '#team' },

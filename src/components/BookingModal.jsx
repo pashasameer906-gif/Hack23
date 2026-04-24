@@ -1,13 +1,59 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CalendarCheck, CheckCircle2 } from 'lucide-react';
+import { X, CalendarCheck, CheckCircle2, Download } from 'lucide-react';
 
 export default function BookingModal({ open, onClose, defaultStation = 'Charge Zone – Koramangala' }) {
   const [submitted, setSubmitted] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState({
+    date: '',
+    timeSlot: '6:00 AM – 6:30 AM',
+    vehicleType: '',
+  });
   
   const handleClose = () => {
     onClose();
-    setTimeout(() => setSubmitted(false), 300); // reset state after animation
+    setTimeout(() => {
+      setSubmitted(false);
+      setBookingDetails({ date: '', timeSlot: '6:00 AM – 6:30 AM', vehicleType: '' });
+    }, 300);
+  };
+
+  const generateWordDoc = () => {
+    const htmlContent = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><meta charset='utf-8'><title>Booking Details</title></head>
+      <body style="font-family: Arial, sans-serif;">
+        <h1 style="color: #22c55e;">VoltWise AI - Booking Confirmed</h1>
+        <hr />
+        <h3>Booking Details:</h3>
+        <ul>
+          <li><strong>Station:</strong> ${defaultStation}</li>
+          <li><strong>Date:</strong> ${bookingDetails.date}</li>
+          <li><strong>Time Slot:</strong> ${bookingDetails.timeSlot}</li>
+          <li><strong>Vehicle Type:</strong> ${bookingDetails.vehicleType}</li>
+          <li><strong>Booked On:</strong> ${new Date().toLocaleString()}</li>
+        </ul>
+        <br />
+        <p>Thank you for choosing VoltWise AI! Please arrive 5 minutes early.</p>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `VoltWise_Booking_${bookingDetails.date || 'Receipt'}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    generateWordDoc();
   };
 
   return (
@@ -38,7 +84,7 @@ export default function BookingModal({ open, onClose, defaultStation = 'Charge Z
             
             <div className="p-6">
               {!submitted ? (
-                <form onSubmit={e => { e.preventDefault(); setSubmitted(true); }} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="text-xs text-gray-400 block mb-1">Station</label>
                     <input 
@@ -53,12 +99,18 @@ export default function BookingModal({ open, onClose, defaultStation = 'Charge Z
                     <input 
                       type="date" 
                       required
+                      value={bookingDetails.date}
+                      onChange={(e) => setBookingDetails({ ...bookingDetails, date: e.target.value })}
                       className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green text-sm" 
                     />
                   </div>
                   <div>
                     <label className="text-xs text-gray-400 block mb-1">Time Slot</label>
-                    <select className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green text-sm">
+                    <select 
+                      value={bookingDetails.timeSlot}
+                      onChange={(e) => setBookingDetails({ ...bookingDetails, timeSlot: e.target.value })}
+                      className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green text-sm"
+                    >
                       <option>6:00 AM – 6:30 AM</option>
                       <option>7:00 AM – 7:30 AM</option>
                       <option>8:00 AM – 8:30 AM</option>
@@ -73,7 +125,12 @@ export default function BookingModal({ open, onClose, defaultStation = 'Charge Z
                   </div>
                   <div>
                     <label className="text-xs text-gray-400 block mb-1">Vehicle Type</label>
-                    <select required className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green text-sm">
+                    <select 
+                      required 
+                      value={bookingDetails.vehicleType}
+                      onChange={(e) => setBookingDetails({ ...bookingDetails, vehicleType: e.target.value })}
+                      className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green text-sm"
+                    >
                       <option value="">Select your vehicle</option>
                       <option value="SUV">SUV</option>
                       <option value="Sedan">Sedan</option>
@@ -92,9 +149,14 @@ export default function BookingModal({ open, onClose, defaultStation = 'Charge Z
                   <p className="text-gray-400 text-sm max-w-sm">
                     Your EV charging slot at <strong className="text-white">{defaultStation}</strong> has been reserved. You'll get a reminder 15 mins before your time.
                   </p>
-                  <button onClick={handleClose} className="mt-2 px-8 py-2.5 bg-neon-green/10 text-neon-green border border-neon-green/30 rounded-xl font-semibold text-sm hover:bg-neon-green/20 transition-all">
-                    Done
-                  </button>
+                  <div className="flex gap-3 mt-2">
+                    <button onClick={generateWordDoc} className="px-5 py-2.5 bg-dark-800 text-gray-300 border border-dark-700 rounded-xl font-semibold text-sm hover:text-white transition-all flex items-center gap-2">
+                      <Download className="w-4 h-4" /> Receipt
+                    </button>
+                    <button onClick={handleClose} className="px-8 py-2.5 bg-neon-green/10 text-neon-green border border-neon-green/30 rounded-xl font-semibold text-sm hover:bg-neon-green/20 transition-all">
+                      Done
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

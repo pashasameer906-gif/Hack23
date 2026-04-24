@@ -35,6 +35,11 @@ export default function SmartRecommendations({ open, onClose }) {
   const [error, setError] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [stations, setStations] = useState([]);
+  const [currentBattery, setCurrentBattery] = useState(20);
+  const [originalCapacity, setOriginalCapacity] = useState(60);
+  const [currentMaxCapacity, setCurrentMaxCapacity] = useState(48);
+
+  const soh = originalCapacity > 0 ? Math.round((currentMaxCapacity / originalCapacity) * 100) : 0;
 
   const fetchStations = useCallback(async (loc) => {
     setLoading(true); setError(null); setStations([]);
@@ -134,7 +139,64 @@ export default function SmartRecommendations({ open, onClose }) {
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-3">
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              
+              {/* Battery Status Section */}
+              <div className="bg-dark-800 border border-dark-700 rounded-2xl p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <BatteryCharging className="w-5 h-5 text-neon-blue" />
+                  <h4 className="text-white font-bold text-sm">Vehicle Battery Health & Status</h4>
+                </div>
+                
+                <div className="mb-5">
+                  <div className="flex justify-between text-xs text-gray-400 mb-2">
+                    <label className="font-medium">Current Battery Charge</label>
+                    <span className="text-neon-blue font-bold text-sm">{currentBattery}%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="100" 
+                    value={currentBattery} 
+                    onChange={(e) => setCurrentBattery(e.target.value)}
+                    className="w-full h-2 bg-dark-900 rounded-lg appearance-none cursor-pointer accent-neon-blue"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Original Capacity (kWh)</label>
+                    <input 
+                      type="number" 
+                      value={originalCapacity} 
+                      onChange={(e) => setOriginalCapacity(e.target.value)}
+                      className="w-full bg-dark-900 border border-dark-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Current Max Capacity (kWh)</label>
+                    <input 
+                      type="number" 
+                      value={currentMaxCapacity} 
+                      onChange={(e) => setCurrentMaxCapacity(e.target.value)}
+                      className="w-full bg-dark-900 border border-dark-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex items-center justify-between bg-dark-900/50 p-3 rounded-xl border border-dark-700/50">
+                  <div className="text-sm text-gray-400 font-mono flex items-center flex-wrap gap-1">
+                    SOH(%) = <span className="text-white">{currentMaxCapacity}</span> / <span className="text-white">{originalCapacity}</span> × 100
+                  </div>
+                  <div className="text-right flex items-center gap-3">
+                    <span className="text-xs text-gray-500 uppercase tracking-wider font-bold">Health</span>
+                    <span className={`text-xl font-bold ${soh >= 80 ? 'text-neon-green' : soh >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
+                      {soh}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {loading && (
                 <div className="flex flex-col items-center justify-center py-16 gap-4">
                   <div className="relative">

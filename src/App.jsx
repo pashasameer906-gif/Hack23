@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import USP from './components/USP';
+import BatteryCalculator from './components/BatteryCalculator';
 import MapDemo from './components/MapDemo';
 import Impact from './components/Impact';
 import Team from './components/Team';
@@ -16,6 +17,7 @@ function App() {
       <Hero />
       <Features />
       <USP />
+      <BatteryCalculator />
       <MapDemo />
       <Impact />
       <Team />
