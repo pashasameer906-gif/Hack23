@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-dark-900 text-white font-sans overflow-x-hidden;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-dark-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-dark-700 rounded-full border-2 border-dark-900;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-neon-green;
+}
+
+/* Utilities for Map Demo */
+.map-gradient {
+  background: radial-gradient(circle at center, rgba(0, 255, 102, 0.1) 0%, transparent 70%);
+}
